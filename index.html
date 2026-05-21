@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German Vocabulary Leagues</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+        body {
+            background-color: #050505;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; 
+            overflow-x: hidden;
+            overflow-y: auto; 
+            text-align: center;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .shield-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-text {
+            color: #888;
+            font-size: 16px;
+            font-family: monospace;
+            text-transform: uppercase;
+        }
+        
+        .shield-btn {
+            background: #111;
+            border: 4px solid;
+            border-radius: 10% 10% 50% 50% / 10% 10% 60% 60%; 
+            color: inherit;
+            width: 180px;
+            height: 220px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 0 20px currentColor; 
+        }
+
+        .shield-btn:hover {
+            background: currentColor;
+            color: #000;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .shield-number {
+            font-family: 'MedievalSharp', serif;
+            font-size: 56px;
+            margin-bottom: 5px;
+            line-height: 1;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .shield-name {
+            font-family: inherit;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .iron-color { color: #7a7a7a; }      
+        .copper-color { color: #ffa500; }    
+        .bronze-color { color: #8b4513; }    
+        .silver-color { color: #c0c0c0; }    
+        .gold-color { color: #ffd700; }      
+        .titanium-color { color: #7886a0; }  
+        .platinum-color { color: #ffffff; }  
+        .diamond-color { color: #00ffff; }   
+
+        #league-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #set-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            justify-items: center;
+            width: 100%;
+        }
+
+        .set-shield {
+            width: 160px;
+            height: 180px;
+            font-size: 24px;
+            border-width: 3px;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid #555;
+            color: #555;
+            padding: 10px 30px;
+            font-size: 20px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            border-radius: 5px;
+        }
+        .back-btn:hover { background: #555; color: #fff; }
+
+        #flashcard-area {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        .hud {
+            position: absolute;
+            top: 20px;
+            font-size: 24px;
+            font-family: monospace;
+            color: #888;
+        }
+
+        #progress-hud { left: 20px; text-align: left; }
+        #score-hud { right: 20px; text-align: right; }
+        .score-correct { color: #0f0; }
+        .score-failed { color: #f00; }
+
+        #sentence-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .sentence {
+            font-size: 4vw; 
+            letter-spacing: 1px;
+            min-height: 1.2em;
+        }
+
+        .state-turkish { color: #ffffff; } 
+        .state-german { color: #00ffff; } 
+
+        .clickable-word {
+            cursor: pointer;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.4);
+            transition: color 0.2s, border-color 0.2s;
+            display: inline-block;
+            margin: 0 4px;
+        }
+        .clickable-word:hover {
+            color: #ffe81f;
+            border-bottom-color: #ffe81f;
+        }
+        
+        #word-tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ffe81f;
+            color: #ffe81f;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            display: none;
+            transform: translate(-50%, -120%);
+            white-space: nowrap;
+        }
+
+        .touch-controls {
+            position: absolute; 
+            bottom: 20px; 
+            width: 100%; 
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .touch-btn {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #555;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .touch-btn:active { transform: scale(0.95); }
+
+        @media (max-width: 800px) {
+            #league-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .shield-btn { width: 140px; height: 180px; }
+            .shield-number { font-size: 40px; }
+            .shield-name { font-size: 18px; }
+            .hud { font-size: 16px; top: 10px; }
+            .sentence { font-size: 6vw; }
+            .touch-btn { padding: 10px 12px; font-size: 12px; }
+            #word-tooltip { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-menu" class="menu-container">
+        <h1 style="font-size: 42px; letter-spacing: 2px; margin-bottom: 10px;">SELECT LEAGUE</h1>
+        <div id="league-grid">
+            <div class="shield-container">
+                <button class="shield-btn iron-color" onclick="showSets('iron')">
+                    <span class="shield-number">1</span><span class="shield-name">Iron</span>
+                </button>
+                <div id="progress-iron" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn copper-color" onclick="showSets('copper')">
+                    <span class="shield-number">2</span><span class="shield-name">Copper</span>
+                </button>
+                <div id="progress-copper" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn bronze-color" onclick="showSets('bronze')">
+                    <span class="shield-number">3</span><span class="shield-name">Bronze</span>
+                </button>
+                <div id="progress-bronze" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn silver-color" onclick="showSets('silver')">
+                    <span class="shield-number">4</span><span class="shield-name">Silver</span>
+                </button>
+                <div id="progress-silver" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn gold-color" onclick="showSets('gold')">
+                    <span class="shield-number">5</span><span class="shield-name">Gold</span>
+                </button>
+                <div id="progress-gold" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn titanium-color" onclick="showSets('titanium')">
+                    <span class="shield-number">6</span><span class="shield-name">Titanium</span>
+                </button>
+                <div id="progress-titanium" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn platinum-color" onclick="showSets('platinum')">
+                    <span class="shield-number">7</span><span class="shield-name">Platinum</span>
+                </button>
+                <div id="progress-platinum" class="progress-text">0/0 Sets</div>
+            </div>
+            <div class="shield-container">
+                <button class="shield-btn diamond-color" onclick="showSets('diamond')">
+                    <span class="shield-number">8</span><span class="shield-name">Diamond</span>
+                </button>
+                <div id="progress-diamond" class="progress-text">0/0 Sets</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="set-menu" class="menu-container" style="display: none;">
+        <h1 id="set-menu-title" style="font-size: 48px; letter-spacing: 2px;">CHOOSE A SET</h1>
+        <div id="set-buttons"></div>
+        <button class="back-btn" onclick="showMainMenu()">Back to Leagues</button>
+    </div>
+
+    <div id="flashcard-area">
+        <div id="progress-hud" class="hud">Set: <span id="hud-set">1</span><br>Card <span id="hud-current">0</span> / <span id="hud-total">0</span></div>
+        <div id="score-hud" class="hud">Correct: <span id="hud-correct" class="score-correct">0</span><br>Failed: <span id="hud-failed" class="score-failed">0</span></div>
+        
+        <div id="sentence-container">
+            <div id="turkish-text" class="sentence state-turkish"></div>
+            <div id="german-text" class="sentence state-german" style="visibility: hidden;"></div>
+        </div>
+
+        <div id="word-tooltip"></div>
+        
+        <div class="touch-controls">
+            <button class="touch-btn" onclick="handleAction('reveal')">👁️ Reveal</button>
+            <button class="touch-btn" style="border-color: #f00; color: #f00;" onclick="handleAction('fail')">❌ Fail</button>
+            <button class="touch-btn" style="border-color: #0f0; color: #0f0;" onclick="handleAction('pass')">✅ Correct</button>
+            <button class="touch-btn" onclick="handleAction('undo')">↩️ Undo</button>
+            <button class="touch-btn" style="border-color: #ffe81f; color: #ffe81f;" onclick="handleAction('exit')">Exit</button>
+        </div>
+    </div>
+
+    <div id="results-screen" class="menu-container" style="display: none; justify-content: center; height: 100vh;">
+        <h1 style="font-size: 48px; margin-bottom: 10px;">RESULTS</h1>
+        <h2 id="results-message" style="color: #888; font-family: monospace; margin-top: 0;"></h2>
+        <div style="font-size: 48px; color: orange; margin-bottom: 30px;">Success: <span id="res-percentage">0</span>%</div>
+        <div style="font-size: 36px; margin-bottom: 40px;"><span class="score-correct">Correct: <span id="res-correct">0</span></span><br><span class="score-failed">Failed: <span id="res-failed">0</span></span></div>
+        
+        <div id="failed-prompt-area" style="margin-bottom: 30px; display: none;">
+            <div style="font-size: 22px; margin-bottom: 20px; color: #ff0000; font-family: monospace; letter-spacing: 1px;">DO YOU WANT TO CONTINUE WITH THE ONES YOU FAILED TO DO? (<span id="failed-count">0</span> ITEMS)</div>
+            <button class="back-btn" onclick="startFailedReview()" style="border-color: #0f0; color: #0f0; margin-right: 20px;">YES</button>
+            <button class="back-btn" onclick="closeFailedReview()" style="border-color: #f00; color: #f00;">NO</button>
+        </div>
+
+        <div id="standard-result-buttons">
+            <button class="back-btn" onclick="showSets(currentLeague)" style="margin-right: 20px;">Back to Sets</button>
+            <button class="back-btn" onclick="showMainMenu()">Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const exactDictionary = {};
+        const rootDictionary = {};
+        const sortedRoots = [];
+
+        const vocabularyData = {
+            iron: {
+                "Set 1": [
+                    { tr: "kilo vermek", de: "abnehmen" },
+                    { tr: "araba", de: "(das) Auto" },
+                    { tr: "davet etmek", de: "einladen" },
+                    { tr: "bulmak", de: "finden" },
+                    { tr: "durmak, durdurmak", de: "aufhalten" },
+                    { tr: "bilgisayar", de: "(der) Computer" },
+                    { tr: "henüz (daha, ilk)", de: "erst" },
+                    { tr: "vermek", de: "geben" },
+                    { tr: "telefon etmek", de: "anrufen" },
+                    { tr: "oluşturmak", de: "bilden" },
+                    { tr: "karar vermek", de: "entscheiden" },
+                    { tr: "desteklemek", de: "fördern" },
+                    { tr: "eczane", de: "(die) Apotheke" },
+                    { tr: "getirmek", de: "bringen" },
+                    { tr: "fark etmek", de: "erkennen" }
+                ],
+                "Set 2": [
+                    { tr: "yaş", de: "(der) Alter" },
+                    { tr: "cevaplamak", de: "beantworten" },
+                    { tr: "ebeveyn", de: "(die) Eltern" },
+                    { tr: "balık", de: "(der) Fisch" },
+                    { tr: "dikkat etmek", de: "aufpassen" },
+                    { tr: "dosya", de: "(die) Datei" },
+                    { tr: "anlatmak", de: "erzählen" },
+                    { tr: "nakit", de: "(das) Geld" },
+                    { tr: "bakmak", de: "ansehen" },
+                    { tr: "kalmak", de: "bleiben" },
+                    { tr: "geliştirmek", de: "entwickeln" },
+                    { tr: "talep etmek", de: "fordern" },
+                    { tr: "çalışmak", de: "arbeiten" },
+                    { tr: "kitap", de: "(das) Buch" },
+                    { tr: "açıklamak", de: "erklären" }
+                ],
+                "Set 3": [
+                    { tr: "değiştirmek", de: "ändern" },
+                    { tr: "bitirmek, son vermek", de: "beenden" },
+                    { tr: "önermek", de: "empfehlen" },
+                    { tr: "şişe", de: "(die) Flasche" },
+                    { tr: "toplamak", de: "aufräumen" },
+                    { tr: "veri tabanı", de: "(die) Datenbank" },
+                    { tr: "yemek yemek", de: "essen" },
+                    { tr: "sebze", de: "(das) Gemüse" },
+                    { tr: "doktor", de: "(der) Arzt" },
+                    { tr: "tereyağı", de: "(die) Butter" },
+                    { tr: "ciddi", de: "ernst" },
+                    { tr: "misafir", de: "(der) Gast" },
+                    { tr: "teklif etmek", de: "anbieten" },
+                    { tr: "ziyaret etmek", de: "besuchen" },
+                    { tr: "bitiş", de: "(das) Ende" }
+                ],
+                "Set 4": [
+                    { tr: "başlamak", de: "anfangen" },
+                    { tr: "ödemek", de: "bezahlen" },
+                    { tr: "çıkarmak, uzaklaştırmak", de: "entfernen" },
+                    { tr: "uçmak", de: "fliegen" },
+                    { tr: "Çıkış", de: "(der) Ausgang" },
+                    { tr: "girmek", de: "eintragen" },
+                    { tr: "pencere", de: "(das) Fenster" },
+                    { tr: "mağaza", de: "(das) Geschäft" },
+                    { tr: "ayağa kalkmak", de: "aufstehen" },
+                    { tr: "düşünmek", de: "denken" },
+                    { tr: "televizyon", de: "(der) Fernseher" },
+                    { tr: "hediye", de: "(das) Geschenk" },
+                    { tr: "kırmızı et", de: "(das) Fleisch" },
+                    { tr: "sormak", de: "fragen" },
+                    { tr: "yürütmek", de: "führen" }
+                ]
+            },
+            copper: {
+                "Set 1": [
+                    { tr: "bulaşık", de: "(das) Geschirr" },
+                    { tr: "duymak", de: "hören" },
+                    { tr: "gelmek", de: "kommen" },
+                    { tr: "deniz", de: "(das) Meer" },
+                    { tr: "defter", de: "(das) Heft" },
+                    { tr: "satın almak", de: "kaufen" },
+                    { tr: "yaşamak", de: "leben" },
+                    { tr: "meraklı", de: "neugierig" },
+                    { tr: "büyük", de: "groß" },
+                    { tr: "ceket", de: "(die) Jacke" },
+                    { tr: "dükkan", de: "(der) Laden" },
+                    { tr: "bildirmek", de: "mitteilen" },
+                    { tr: "telefon", de: "(das) Handy" },
+                    { tr: "takvim", de: "(der) Kalender" },
+                    { tr: "yavaş", de: "langsam" }
+                ],
+                "Set 2": [
+                    { tr: "dün", de: "gestern" },
+                    { tr: "pantolon", de: "(die) Hose" },
+                    { tr: "kulaklık", de: "(die) Kopfhörer" },
+                    { tr: "daha çok", de: "mehr" },
+                    { tr: "gömlek", de: "(das) Hemd" },
+                    { tr: "peynir", de: "(der) Käse" },
+                    { tr: "okumak", de: "lesen" },
+                    { tr: "ağ", de: "(das) Netz" },
+                    { tr: "tutmak", de: "halten" },
+                    { tr: "kablo", de: "(das) Kabel" },
+                    { tr: "lamba", de: "(die) Lampe" },
+                    { tr: "cesaret", de: "(der) Mut" },
+                    { tr: "nefret", de: "(der) Hass" },
+                    { tr: "soğuk", de: "kalt" },
+                    { tr: "sesli", de: "laut" }
+                ],
+                "Set 3": [
+                    { tr: "kazanmak", de: "gewinnen" },
+                    { tr: "şapka", de: "(der) Hut" },
+                    { tr: "hastalık", de: "(die) Krankheit" },
+                    { tr: "insan", de: "(der) Mensch" },
+                    { tr: "yardım etmek", de: "helfen" },
+                    { tr: "tanışmak", de: "kennenlernen" },
+                    { tr: "sevmek", de: "lieben" },
+                    { tr: "not almak", de: "notieren" },
+                    { tr: "ev", de: "(das) Haus" },
+                    { tr: "kariyer", de: "(die) Karriere" },
+                    { tr: "yaşam alanı", de: "(der) Lebensraum" },
+                    { tr: "almak", de: "nehmen" },
+                    { tr: "inanmak", de: "glauben" },
+                    { tr: "fikir", de: "(die) Idee" },
+                    { tr: "tükenmez kalem", de: "(der) Kugelschreiber" }
+                ],
+                "Set 4": [
+                    { tr: "şans", de: "(das) Glück" },
+                    { tr: "bilgi vermek", de: "informieren" },
+                    { tr: "feshetmek", de: "kündigen" },
+                    { tr: "başarısızlık", de: "(der) Misserfolg" },
+                    { tr: "ummak", de: "hoffen" },
+                    { tr: "elbise", de: "(das) Kleid" },
+                    { tr: "market", de: "(der) Markt" },
+                    { tr: "kağıt", de: "(das) Papier" },
+                    { tr: "bugün", de: "heute" },
+                    { tr: "küçük", de: "klein" },
+                    { tr: "palto", de: "(der) Mantel" },
+                    { tr: "meyve", de: "(das) Obst" },
+                    { tr: "süt", de: "(die) Milch" },
+                    { tr: "gece", de: "(die) Nacht" },
+                    { tr: "tekrar sormak", de: "nach fragen" }
+                ]
+            },
+            bronze: {
+                "Set 1": [
+                    { tr: "planlamak", de: "planen" },
+                    { tr: "göndermek", de: "schicken" },
+                    { tr: "çok", de: "sehr" },
+                    { tr: "çanta", de: "(die) Tasche" },
+                    { tr: "unutmak", de: "vergessen" },
+                    { tr: "öfkeli", de: "wütend" },
+                    { tr: "tepki vermek", de: "reagieren" },
+                    { tr: "dolap", de: "(der) Schrank" },
+                    { tr: "ayna", de: "(der) Spiegel" },
+                    { tr: "üzgün", de: "traurig" },
+                    { tr: "tanıtmak", de: "vorstellen" },
+                    { tr: "değerlendirmek", de: "reflektieren" },
+                    { tr: "ayakkabı", de: "(die) Schuhe" },
+                    { tr: "ölmek", de: "sterben" },
+                    { tr: "saat", de: "(die) Uhr" }
+                ],
+                "Set 2": [
+                    { tr: "fiyat", de: "(der) Preis" },
+                    { tr: "itmek", de: "schieben" },
+                    { tr: "sayfa", de: "(die) Seite" },
+                    { tr: "klavye", de: "(die) Tastatur" },
+                    { tr: "karşılaştırmak", de: "vergleichen" },
+                    { tr: "gazete", de: "(die) Zeitung" },
+                    { tr: "tepki", de: "(die) Reaktion" },
+                    { tr: "yazmak", de: "schreiben" },
+                    { tr: "oynamak", de: "spielen" },
+                    { tr: "içmek", de: "trinken" },
+                    { tr: "beklemek", de: "warten" },
+                    { tr: "tamir etmek", de: "reparieren" },
+                    { tr: "koruma", de: "(der) Schutz" },
+                    { tr: "kalem", de: "(das) Stift" },
+                    { tr: "çekmek", de: "um zu ziehen" }
+                ],
+                "Set 3": [
+                    { tr: "denemek", de: "probieren" },
+                    { tr: "vurmak", de: "schlagen" },
+                    { tr: "durum", de: "(die) Situation" },
+                    { tr: "katılmak", de: "teilnehmen" },
+                    { tr: "satmak", de: "verkaufen" },
+                    { tr: "memnun", de: "zufrieden" },
+                    { tr: "araştırmak", de: "recherchieren" },
+                    { tr: "bağırmak", de: "schreien" },
+                    { tr: "güçlü", de: "stark" },
+                    { tr: "kapı", de: "(die) Tür" },
+                    { tr: "yıkamak", de: "waschen" },
+                    { tr: "tahmin etmek", de: "schätzen" },
+                    { tr: "zor, ağır", de: "schwer" },
+                    { tr: "sandalye", de: "(der) Stuhl" },
+                    { tr: "tüketim", de: "(der) Verbrauch" }
+                ],
+                "Set 4": [
+                    { tr: "kazak", de: "(der) Pullover" },
+                    { tr: "kapatmak", de: "schleißen" },
+                    { tr: "ayırmak", de: "sortieren" },
+                    { tr: "halı", de: "(der) Teppich" },
+                    { tr: "anlamak", de: "verstehen" },
+                    { tr: "azaltmak", de: "reduzieren" },
+                    { tr: "okul", de: "(die) Schule" },
+                    { tr: "başlatmak", de: "starten" },
+                    { tr: "kontrol etmek", de: "überprüfen" },
+                    { tr: "su", de: "(das) Wasser" },
+                    { tr: "izlemek", de: "schauen" },
+                    { tr: "yüzmek", de: "schwimmen" },
+                    { tr: "dans etmek", de: "tanzen" },
+                    { tr: "değiştirmek", de: "verändern" },
+                    { tr: "dilemek", de: "wünschen" }
+                ],
+                "Set 5": [
+                    { tr: "temizlemek", de: "putzen" },
+                    { tr: "anahtar", de: "(der) Schlüssel" },
+                    { tr: "tasarruf etmek", de: "sparen" },
+                    { tr: "masa", de: "(der) Tisch" },
+                    { tr: "hazırlamak", de: "vorbereiten" },
+                    { tr: "yol", de: "(der) Weg" },
+                    { tr: "dışarı gitmek", de: "rausgehen" },
+                    { tr: "hızlı", de: "schnell" },
+                    { tr: "yürüyüş yapmak", de: "spazieren gehen" },
+                    { tr: "rüya", de: "(das) Traum" },
+                    { tr: "dikkatli", de: "vorsichtig" },
+                    { tr: "değerli, kıymetli", de: "wertvolle" },
+                    { tr: "önemli", de: "wichtig" }
+                ]
+            },
+            silver: {
+                "Set 1": [
+                    { tr: "Bağlı Olmak", de: "abhängen von" },
+                    { tr: "İlan", de: "(die) Anzeige" },
+                    { tr: "heyecanlı", de: "begeistert" },
+                    { tr: "belirlemek", de: "bestimmen" },
+                    { tr: "bunun üzerine", de: "darauf" },
+                    { tr: "Aktivite", de: "(die) Aktivität" },
+                    { tr: "sona ermek", de: "aufhören" },
+                    { tr: "Stres", de: "(die) Belastung" },
+                    { tr: "Başvuru", de: "(die) Bewerbung" },
+                    { tr: "içinden, aracılığıyla", de: "durch" },
+                    { tr: "Tanımak", de: "anerkennen" },
+                    { tr: "Seçmek", de: "auswählen" },
+                    { tr: "Alan", de: "(der) Bereich" },
+                    { tr: "yanında (o esnada)", de: "dabei" },
+                    { tr: "giriş", de: "eingang" }
+                ],
+                "Set 2": [
+                    { tr: "kapatmak", de: "abschalten" },
+                    { tr: "İşveren", de: "(der) Arbeitgeber" },
+                    { tr: "yanında", de: "bei" },
+                    { tr: "aldatmak", de: "betrügen" },
+                    { tr: "Sunmak", de: "darstellen" },
+                    { tr: "kabul edilebilir", de: "akzeptabel" },
+                    { tr: "Çaba", de: "(der) Aufwand" },
+                    { tr: "Kullanmak", de: "benutzen" },
+                    { tr: "ekran, monitör", de: "(der) Bildschirm" },
+                    { tr: "birkaç", de: "ein paar" },
+                    { tr: "Teklif", de: "(das) Angebot" },
+                    { tr: "dışında", de: "außer" },
+                    { tr: "şimdiden", de: "bereits" },
+                    { tr: "bunun için", de: "dafür" },
+                    { tr: "bazı", de: "einige" }
+                ],
+                "Set 3": [
+                    { tr: "Mezuniyet", de: "(der) Abschluss" },
+                    { tr: "Çalışan", de: "(der) Arbeitnehmer" },
+                    { tr: "yanına almak", de: "bei sich aufnehmen" },
+                    { tr: "yatak", de: "(das) Bett" },
+                    { tr: "Sunum", de: "(die) Darstellung" },
+                    { tr: "Gerçi", de: "allerdings" },
+                    { tr: "Mesleki Eğitim", de: "(die) Ausbildung" },
+                    { tr: "ihtiyacı olmak", de: "benötigen" },
+                    { tr: "Rica Etmek", de: "bitten um" },
+                    { tr: "İzlenim", de: "(der) Eindruck" },
+                    { tr: "korku", de: "angst" },
+                    { tr: "Dikkate Almak", de: "beachten" },
+                    { tr: "Rapor Etmek", de: "berichten" },
+                    { tr: "o zamanlar", de: "damals" },
+                    { tr: "Kurmak", de: "einrichten" }
+                ],
+                "Set 4": [
+                    { tr: "Niyet", de: "(die) Absicht" },
+                    { tr: "ayrıca", de: "auch" },
+                    { tr: "Katkıda Bulunmak", de: "beitragen zu" },
+                    { tr: "Hareket", de: "(die) Bewegung" },
+                    { tr: "ancak", de: "doch" },
+                    { tr: "Günlük Hayat", de: "(der) Alltag" },
+                    { tr: "Harcamak", de: "ausgeben" },
+                    { tr: "gözlemlemek", de: "beobachten" },
+                    { tr: "ihtiyacı olmak", de: "brauchen" },
+                    { tr: "Aklına Gelmek", de: "einfallen" },
+                    { tr: "Yerine", de: "anstatt" },
+                    { tr: "Anlam", de: "(die) Bedeutung" },
+                    { tr: "Meslek", de: "(der) Beruf" },
+                    { tr: "böylece", de: "damit" },
+                    { tr: "Tutum", de: "(die) Einstellung" }
+                ],
+                "Set 5": [
+                    { tr: "Sezgi", de: "(die) Ahnung" },
+                    { tr: "saklama", de: "aufbewahrung" },
+                    { tr: "Tanınmış", de: "bekannt" },
+                    { tr: "kanıtlamak", de: "beweisen" },
+                    { tr: "orada", de: "dort" },
+                    { tr: "yavaş yavaş", de: "almählich" },
+                    { tr: "Yeterli Olmak", de: "ausreichen" },
+                    { tr: "rahat", de: "bequem" },
+                    { tr: "kimyasal", de: "chemische" },
+                    { tr: "Nüfuz", de: "Einfluss" },
+                    { tr: "Uygulamak", de: "anwenden" },
+                    { tr: "Şart", de: "Bedingung" },
+                    { tr: "özellikle", de: "besonders" },
+                    { tr: "Minnettar", de: "dankbar" },
+                    { tr: "Karar", de: "(die) Entscheidung" }
+                ]
+            },
+            gold: {
+                "Set 1": [
+                    { tr: "Oluşmak", de: "entstehen" },
+                    { tr: "hemen hemen", de: "fast" },
+                    { tr: "cihaz", de: "(das) Gerät" },
+                    { tr: "yapmak, becermek", de: "leisten" },
+                    { tr: "kavramak, anlamak", de: "erfassen" },
+                    { tr: "İlerleme", de: "(der) Fortschritt" },
+                    { tr: "Zorluk", de: "(die) Herausforderung" },
+                    { tr: "bazen", de: "manchmal" },
+                    { tr: "İzin Vermek", de: "erlauben" },
+                    { tr: "tehlike", de: "(die) Gefahr" },
+                    { tr: "Bilgi", de: "(die) Kenntnis" },
+                    { tr: "Talep", de: "(die) Nachfrage" },
+                    { tr: "hayal kırıklığına uğramak", de: "enttäuschen" },
+                    { tr: "Kutlama", de: "(die) Feier" },
+                    { tr: "Yasa", de: "(das) Gesetz" }
+                ],
+                "Set 2": [
+                    { tr: "Gelişim", de: "(die) Entwicklung" },
+                    { tr: "beceri", de: "Fertigkeiten" },
+                    { tr: "Sağlık", de: "(die) Gesundheit" },
+                    { tr: "insanlar", de: "(die) Leute" },
+                    { tr: "Artırmak", de: "erhöhen" },
+                    { tr: "Kayıp eşya", de: "fundsachen" },
+                    { tr: "göz önünde bulundurmak", de: "in Betracht ziehen" },
+                    { tr: "Görüş", de: "(die) Meinung" },
+                    { tr: "Mümkün Kılmak", de: "ermöglichen" },
+                    { tr: "karşı", de: "gegenüber" },
+                    { tr: "sinema", de: "(das) Kino" },
+                    { tr: "sinirlendirmek", de: "nerven" },
+                    { tr: "Deneyim", de: "(die) Erfahrung" },
+                    { tr: "sonuç", de: "(die) Folge" },
+                    { tr: "Alışkanlık", de: "(die) Gewohnheit" }
+                ],
+                "Set 3": [
+                    { tr: "Deneyim Kazanmak", de: "Erfahrungen sammeln" },
+                    { tr: "araştırmacı", de: "Forscher" },
+                    { tr: "Eşit", de: "gleich" },
+                    { tr: "Çözüm", de: "(die) Lösung" },
+                    { tr: "Farkındalık", de: "(die) Erkenntnis" },
+                    { tr: "bütün", de: "ganz" },
+                    { tr: "gençlik", de: "Jugendliche" },
+                    { tr: "İmkan", de: "(die) Möglichkeit" },
+                    { tr: "yetişkin", de: "erwachsene" },
+                    { tr: "şu anda", de: "gerade" },
+                    { tr: "sanat galerisi", de: "(die) Kunsthalle" },
+                    { tr: "hiç kimse", de: "niemand" },
+                    { tr: "icat", de: "(die) Erfindung" },
+                    { tr: "hayvanların yemek yemesi", de: "fressen" },
+                    { tr: "çok yetenekli", de: "hochbegabten" }
+                ],
+                "Set 4": [
+                    { tr: "anı, hatıra", de: "(die) Erinnerung" },
+                    { tr: "Yetenek", de: "(die) Fähigkeit" },
+                    { tr: "birisi", de: "jemand" },
+                    { tr: "çoğu", de: "meisten" },
+                    { tr: "korkutucu", de: "erschreckend" },
+                    { tr: "fırsat", de: "(die) Gelegenheit" },
+                    { tr: "İş Arkadaşı", de: "(der) Kollege" },
+                    { tr: "asla", de: "nie" },
+                    { tr: "tamamlamak", de: "erledigen" },
+                    { tr: "his", de: "(das) Gefühl" },
+                    { tr: "bebek arabası", de: "(der) Kinderwagen" },
+                    { tr: "Dezavantaj", de: "(der) Nachteil" },
+                    { tr: "Performans", de: "(die) Leistung" },
+                    { tr: "izin vermek", de: "lässen" },
+                    { tr: "Önlem", de: "(die) Maßnahme" }
+                ]
+            },
+            titanium: {
+                "Set 1": [
+                    { tr: "gerekli, zorunlu", de: "notwendig" },
+                    { tr: "şehir", de: "(der) Stadt" },
+                    { tr: "yolda", de: "unterwegs" },
+                    { tr: "Avantaj", de: "(der) Vorteil" },
+                    { tr: "eninde sonunda", de: "überhaupt" },
+                    { tr: "rol, makara", de: "(die) Rolle" },
+                    { tr: "-e rağmen", de: "trotz" },
+                    { tr: "Zaman Geçirmek", de: "verbringen" },
+                    { tr: "bilim", de: "(die) Wissenschaft" },
+                    { tr: "Hatırlamak", de: "sich erinnern" },
+                    { tr: "sabırsız", de: "ungeduldig" },
+                    { tr: "Sebep Olmak", de: "verursachen" },
+                    { tr: "Mevcut Olmak", de: "zur Verfügung stehen" }
+                ],
+                "Set 2": [
+                    { tr: "olmak, meydana gelmek", de: "passieren" },
+                    { tr: "Gerçekleşmek", de: "stattfinden" },
+                    { tr: "Sebep", de: "(die) Ursache" },
+                    { tr: "avantaj", de: "(der) Vorteile" },
+                    { tr: "Kanaat", de: "(die) Überzeugung" },
+                    { tr: "boşaltmak", de: "räumen" },
+                    { tr: "Faaliyet", de: "(die) Tätigkeit" },
+                    { tr: "Davranış", de: "(das) Verhalten" },
+                    { tr: "zamandan tasarruf eden", de: "zeitsparend" },
+                    { tr: "Gelişmek", de: "sich verbessern" },
+                    { tr: "korkutucu", de: "unheimlich" },
+                    { tr: "belki", de: "vielleicht" },
+                    { tr: "Bağlantı", de: "(der) Zusammenhang" }
+                ],
+                "Set 3": [
+                    { tr: "kişisel", de: "persönlich" },
+                    { tr: "çalışmalar", de: "(die) Studien" },
+                    { tr: "Sorumluluk", de: "(die) Verantwortung" },
+                    { tr: "İleri Eğitim", de: "(die) Weiterbildung" },
+                    { tr: "uyumak", de: "schlafen" },
+                    { tr: "Çevre", de: "Umgebung" },
+                    { tr: "Engellemek", de: "verhindern" },
+                    { tr: "notlar", de: "zensuren" },
+                    { tr: "oturmak", de: "sitzen" },
+                    { tr: "sohbet", de: "(die) Unterhaltung" },
+                    { tr: "Ön Koşul", de: "(die) Voraussetzung" },
+                    { tr: "Onay", de: "(die) Zustimmung" }
+                ],
+                "Set 4": [
+                    { tr: "bakım yapmak", de: "pflegen" },
+                    { tr: "Katılım", de: "(die) Teilnahme" },
+                    { tr: "Sorumluluk Almak", de: "Verantwortung übernehmen" },
+                    { tr: "tekrar", de: "wieder" },
+                    { tr: "kendi", de: "selbst" },
+                    { tr: "Başa Çıkmak", de: "umgehen mit" },
+                    { tr: "kaybetmek", de: "verlieren" },
+                    { tr: "Gelecek", de: "(die) Zukunft" },
+                    { tr: "ayrıca bir de", de: "sondern auch" },
+                    { tr: "Fark", de: "(der) Unterschied" },
+                    { tr: "İyileştirme", de: "(die) Vorbesserung" },
+                    { tr: "Benzer", de: "ähnlich" }
+                ],
+                "Set 5": [
+                    { tr: "kocaman", de: "riesige" },
+                    { tr: "metin", de: "(der) Text" },
+                    { tr: "bağlantı", de: "(die) Verbindung" },
+                    { tr: "Etki", de: "Wirkung" },
+                    { tr: "ile İlgilenmek", de: "sich beschäftigen mit" },
+                    { tr: "adaletsiz", de: "unfair" },
+                    { tr: "Kaçınmak", de: "vermeiden" },
+                    { tr: "Artmak", de: "zunehmen" },
+                    { tr: "kopya kağıdı", de: "(das) Spickzettel" },
+                    { tr: "desteklemek", de: "unterstützen" },
+                    { tr: "öneri", de: "Vorschlag" },
+                    { tr: "açmak", de: "öffnen" }
+                ]
+            },
+            platinum: {
+                "Set 1": [
+                    { tr: "iptal etmek", de: "abbrechen" },
+                    { tr: "emanet etmek", de: "anvertrauen" },
+                    { tr: "açıkça", de: "ausdrücklich" },
+                    { tr: "pişman olmak", de: "bereuen" },
+                    { tr: "değerlendirmek", de: "beurteilen" },
+                    { tr: "alçak gönüllülük", de: "(die) Beschiedenheit" },
+                    { tr: "dünya", de: "(die) Erde" },
+                    { tr: "yürürlüğe sokmak", de: "einführen" },
+                    { tr: "uygun, denk, -e göre", de: "entsprechend" },
+                    { tr: "yeniden", de: "erneut" },
+                    { tr: "geri vermek", de: "erstatten" },
+                    { tr: "talep, istek", de: "(die) Forderung" },
+                    { tr: "ortak", de: "gemeinsam" }
+                ],
+                "Set 2": [
+                    { tr: "farklı", de: "anders" },
+                    { tr: "masraflı", de: "aufwendig" },
+                    { tr: "neredeyse", de: "beinahe" },
+                    { tr: "onaylamak", de: "bestätigen" },
+                    { tr: "uğraş", de: "(die) Beschäftigung" },
+                    { tr: "süre", de: "(die) Dauer" },
+                    { tr: "başarı", de: "(der) Erfolg" },
+                    { tr: "bölmek", de: "einteilen" },
+                    { tr: "doldurmak, yerine getirmek", de: "erfüllen" },
+                    { tr: "bitkin", de: "erschöpft" },
+                    { tr: "üretmek", de: "erzeugen" },
+                    { tr: "başarmak", de: "gelingen" }
+                ]
+            },
+            diamond: {
+                "Set 1": [
+                    { tr: "şekil vermek", de: "gestalten" },
+                    { tr: "sık sık", de: "häufig" },
+                    { tr: "ancak", de: "jedoch" },
+                    { tr: "yeterlilik", de: "(die) Kompetenz" },
+                    { tr: "fiziksel", de: "körperlich" },
+                    { tr: "gelir vergisi", de: "(die) Lohnsteuer" },
+                    { tr: "kurul", de: "(der) Rat" },
+                    { tr: "anapara, sermaye", de: "(das) Stammkapital" },
+                    { tr: "fırtına", de: "(der) Strum" },
+                    { tr: "her gün", de: "täglich" },
+                    { tr: "değişiklik", de: "(die) Umstellung" },
+                    { tr: "geçip gitmek", de: "verlaufen" },
+                    { tr: "değer vermek", de: "würdigen" }
+                ],
+                "Set 2": [
+                    { tr: "harika", de: "großartig" },
+                    { tr: "hata, yanılgı", de: "(der) Irrtum" },
+                    { tr: "Sırılsıklam", de: "klatschnass" },
+                    { tr: "çok pahalı", de: "kostspielig" },
+                    { tr: "lezzetli", de: "köstlich" },
+                    { tr: "belirleyici", de: "maßgeblich" },
+                    { tr: "kilitli dolap", de: "(das) Schleißfach" },
+                    { tr: "damga", de: "(der) Stempel" },
+                    { tr: "başarısızlığa uğramak", de: "scheitern" },
+                    { tr: "gerçekten", de: "tatsächlich" },
+                    { tr: "abartmak", de: "übertreiben" },
+                    { tr: "tüketmek", de: "verzehren" }
+                ]
+            }
+        };
+
+        let currentLeague = '', currentSetName = '', activeDeck = [], currentIndex = 0, isFlipped = false, scoreCorrect = 0, scoreFailed = 0, isActive = false, scoreHistory = [];
+        let failedCardsCollection = []; 
+        let completedSets = JSON.parse(localStorage.getItem('el_progress_v9')) || {};
+        const leagueIds = ['iron', 'copper', 'bronze', 'silver', 'gold', 'titanium', 'platinum', 'diamond'];
+        leagueIds.forEach(l => { if (!completedSets[l]) completedSets[l] = []; });
+
+        function updateMenuProgress() {
+            leagueIds.forEach(l => {
+                const total = Object.keys(vocabularyData[l]).length;
+                const completed = completedSets[l].length;
+                const el = document.getElementById(`progress-${l}`);
+                if (el) el.innerText = `${completed}/${total} Sets`;
+            });
+        }
+
+        function hideAll() { ['main-menu', 'set-menu', 'flashcard-area', 'results-screen'].forEach(id => document.getElementById(id).style.display = 'none'); }
+
+        function showMainMenu() { hideAll(); updateMenuProgress(); document.getElementById('main-menu').style.display = 'flex'; isActive = false; }
+
+        function showSets(lId) {
+            currentLeague = lId; hideAll();
+            const cont = document.getElementById('set-buttons'); cont.innerHTML = '';
+            document.getElementById('set-menu-title').innerText = lId.toUpperCase() + " LEAGUE";
+            document.getElementById('set-menu-title').className = `${lId}-color`;
+            const sets = vocabularyData[lId];
+            if (Object.keys(sets).length === 0) { cont.innerHTML = '<div style="color:#888; grid-column: span 2;">Coming soon...</div>'; }
+            else {
+                for (const sName in sets) {
+                    const btn = document.createElement('button');
+                    const isDone = completedSets[lId].includes(sName);
+                    btn.innerText = isDone ? sName + " ✓" : sName;
+                    btn.className = `shield-btn set-shield ${lId}-color`;
+                    if(isDone) btn.style.opacity = "0.7";
+                    btn.onclick = () => startExercise(sName, sets[sName]);
+                    cont.appendChild(btn);
+                }
+            }
+            document.getElementById('set-menu').style.display = 'flex';
+        }
+
+        function startExercise(sName, deck) {
+            currentSetName = sName; 
+            failedCardsCollection = []; 
+            activeDeck = [...deck].sort(() => Math.random() - 0.5);
+            currentIndex = 0; scoreCorrect = 0; scoreFailed = 0; scoreHistory = []; isActive = true;
+            hideAll(); document.getElementById('flashcard-area').style.display = 'block';
+            document.getElementById('hud-set').innerText = sName;
+            document.getElementById('hud-total').innerText = activeDeck.length;
+            updateHUD(); displayCard();
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-current').innerText = currentIndex + 1;
+            document.getElementById('hud-correct').innerText = scoreCorrect;
+            document.getElementById('hud-failed').innerText = scoreFailed;
+        }
+
+        function displayCard() {
+            const trText = activeDeck[currentIndex].tr;
+            const trContainer = document.getElementById('turkish-text');
+            trContainer.innerHTML = ''; 
+
+            const words = trText.split(' ');
+            
+            words.forEach((word, idx) => {
+                const span = document.createElement('span');
+                span.innerText = word + (idx === words.length - 1 ? '' : ' ');
+                span.className = 'clickable-word';
+                
+                const cleanWord = word.split(/['’]/)[0].replace(/[^\w\sğüşıöçĞÜŞİÖÇ]/gi, '').toLocaleLowerCase('tr-TR');
+                
+                span.onclick = (e) => {
+                    e.stopPropagation(); 
+                    showTooltip(e, cleanWord, span);
+                };
+                
+                trContainer.appendChild(span);
+            });
+
+            document.getElementById('german-text').innerText = activeDeck[currentIndex].de;
+            document.getElementById('german-text').style.visibility = 'hidden';
+            isFlipped = false;
+        }
+
+        function showTooltip(event, cleanWord, spanElement) {
+            const tooltip = document.getElementById('word-tooltip');
+            let meaning = exactDictionary[cleanWord]; 
+            
+            if (!meaning) {
+                for (let i = 0; i < sortedRoots.length; i++) {
+                    if (cleanWord.startsWith(sortedRoots[i])) {
+                        meaning = rootDictionary[sortedRoots[i]];
+                        break; 
+                    }
+                }
+            }
+            
+            if (meaning) {
+                tooltip.innerText = meaning;
+            } else {
+                tooltip.innerText = "No translation found"; 
+            }
+            
+            const rect = spanElement.getBoundingClientRect();
+            tooltip.style.left = (rect.left + (rect.width / 2)) + 'px';
+            tooltip.style.top = (rect.top - 5) + 'px';
+            tooltip.style.display = 'block';
+
+            clearTimeout(tooltip.timeoutId);
+            tooltip.timeoutId = setTimeout(() => {
+                tooltip.style.display = 'none';
+            }, 2500);
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('clickable-word')) {
+                document.getElementById('word-tooltip').style.display = 'none';
+            }
+        });
+
+        function flipCard() { if (!isFlipped) { document.getElementById('german-text').style.visibility = 'visible'; isFlipped = true; } }
+
+        function nextCard() {
+            currentIndex++;
+            if (currentIndex >= activeDeck.length) endExercise("Exercise Completed!");
+            else { updateHUD(); displayCard(); }
+        }
+
+        function endExercise(msg) {
+            isActive = false; hideAll();
+            if (currentIndex >= activeDeck.length && !document.getElementById('hud-set').innerText.includes("(Failures)") && !completedSets[currentLeague].includes(currentSetName)) {
+                completedSets[currentLeague].push(currentSetName);
+                localStorage.setItem('el_progress_v9', JSON.stringify(completedSets));
+            }
+            let total = scoreCorrect + scoreFailed;
+            document.getElementById('results-screen').style.display = 'flex';
+            document.getElementById('results-message').innerText = msg;
+            document.getElementById('res-percentage').innerText = total === 0 ? 0 : Math.round((scoreCorrect / total) * 100);
+            document.getElementById('res-correct').innerText = scoreCorrect;
+            document.getElementById('res-failed').innerText = scoreFailed;
+
+            const promptArea = document.getElementById('failed-prompt-area');
+            const standardButtons = document.getElementById('standard-result-buttons');
+
+            if (failedCardsCollection.length > 0) {
+                document.getElementById('failed-count').innerText = failedCardsCollection.length;
+                promptArea.style.display = 'block';
+                standardButtons.style.display = 'none';
+            } else {
+                promptArea.style.display = 'none';
+                standardButtons.style.display = 'block';
+            }
+        }
+
+        function startFailedReview() {
+            activeDeck = [...failedCardsCollection].sort(() => Math.random() - 0.5);
+            failedCardsCollection = []; 
+            currentIndex = 0; scoreCorrect = 0; scoreFailed = 0; scoreHistory = []; isActive = true;
+            hideAll(); document.getElementById('flashcard-area').style.display = 'block';
+            document.getElementById('hud-set').innerText = currentSetName + " (Failures)";
+            document.getElementById('hud-total').innerText = activeDeck.length;
+            updateHUD(); displayCard();
+        }
+
+        function closeFailedReview() {
+            failedCardsCollection = []; 
+            showSets(currentLeague);
+        }
+
+        function handleAction(actionType) {
+            if (!isActive) return;
+
+            if (actionType === 'reveal') { 
+                flipCard(); 
+            }
+            else if (actionType === 'pass' && isFlipped) { 
+                scoreHistory.push('correct'); scoreCorrect++; nextCard(); 
+            }
+            else if (actionType === 'fail' && isFlipped) { 
+                scoreHistory.push('failed'); scoreFailed++; 
+                failedCardsCollection.push(activeDeck[currentIndex]); 
+                nextCard(); 
+            }
+            else if (actionType === 'undo' && currentIndex > 0) {
+                currentIndex--; const last = scoreHistory.pop();
+                if (last === 'correct') scoreCorrect--; 
+                if (last === 'failed') {
+                    scoreFailed--;
+                    failedCardsCollection.pop(); 
+                }
+                updateHUD(); 
+                displayCard(); 
+                document.getElementById('german-text').style.visibility = 'visible'; 
+                isFlipped = true;
+            }
+            else if (actionType === 'exit') {
+                endExercise("Aborted");
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!isActive) return;
+            
+            if (e.key === 'ArrowUp') handleAction('reveal');
+            else if (e.key === 'ArrowRight') handleAction('pass');
+            else if (e.key === 'ArrowLeft') handleAction('fail');
+            else if (e.key === 'ArrowDown') handleAction('undo');
+            else if (e.key === 'Escape') handleAction('exit');
+        });
+
+        updateMenuProgress();
+    </script>
+</body>
+</html>
